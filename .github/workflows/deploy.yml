@@ -1,0 +1,26 @@
+name: Deploy iFlow to CPI
+
+on:
+  workflow_dispatch:   # run manually
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Zip the iFlow
+        run: |
+          cd Email_to_pdf
+          zip -r ../Email_to_pdf.zip .
+          cd ..
+
+      - name: Deploy to CPI
+        run: |
+          curl -X POST "$CPI_URL/api/v1/IntegrationPackages" \
+          -u "$CPI_USER:$CPI_PASS" \
+          -F "file=@Email_to_pdf.zip;type=application/zip"
