@@ -1,26 +1,33 @@
-name: Deploy iFlow to CPI
+name: Deploy Email_to_pdf iFlow to SAP CPI
 
 on:
-  workflow_dispatch:   # run manually
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy-to-cpi:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Zip the iFlow
+      - name: Zip iFlow Folder
         run: |
           cd Email_to_pdf
           zip -r ../Email_to_pdf.zip .
           cd ..
 
-      - name: Deploy to CPI
+      - name: Upload iFlow Package to SAP CPI
         run: |
-          curl -X POST "$CPI_URL/api/v1/IntegrationPackages" \
-          -u "$CPI_USER:$CPI_PASS" \
+          curl -X POST \
+          "${{ secrets.CPI_URL }}/api/v1/IntegrationPackages" \
+          -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -F "file=@Email_to_pdf.zip;type=application/zip"
+
+      - name: Deploy iFlow to Runtime
+        run: |
+          curl -X POST \
+          "${{ secrets.CPI_URL }}/api/v1/DeployIntegrationArtifact?artifactId=Email_to_pdf&version=1.0.0" \
+          -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}"
