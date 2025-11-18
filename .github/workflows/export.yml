@@ -16,13 +16,10 @@ jobs:
       - name: Download iFlow ZIP from CPI
         run: |
           curl -X GET \
-          "${{ secrets.CPI_URL }}/api/v1/IntegrationArtifacts(ArtifactId='Email_to_pdf',Version='1.0.0')/\$value" \
+          "${{ secrets.CPI_URL }}/api/v1/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -o Email_to_pdf_new.zip
 
-      # -------------------------------------------------------
-      # DEBUG STEP GOES HERE (between Download and Unzip)
-      # -------------------------------------------------------
       - name: Debug downloaded file
         run: |
           echo "----- FILE SIZE -----"
@@ -31,11 +28,10 @@ jobs:
           file Email_to_pdf_new.zip
           echo "----- FIRST 200 bytes -----"
           head -c 200 Email_to_pdf_new.zip | cat
-      # -------------------------------------------------------
 
       - name: Unzip exported iFlow
         run: |
-          rm -rf Email_to_pdf   # remove old version
+          rm -rf Email_to_pdf
           unzip Email_to_pdf_new.zip -d Email_to_pdf
 
       - name: Commit updated iFlow
