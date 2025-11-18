@@ -1,0 +1,34 @@
+name: Export iFlow from CPI to GitHub
+
+on:
+  workflow_dispatch:     # run manually OR
+  schedule:
+    - cron: "0 0 * * *"   # runs daily at midnight (optional)
+
+jobs:
+  export-iflow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download iFlow ZIP from CPI
+        run: |
+          curl -X GET \
+          "${{ secrets.CPI_URL }}/api/v1/IntegrationArtifacts(ArtifactId='Email_to_pdf',Version='1.0.0')/\$value" \
+          -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
+          -o Email_to_pdf_new.zip
+
+      - name: Unzip exported iFlow
+        run: |
+          rm -rf Email_to_pdf   # remove old version
+          unzip Email_to_pdf_new.zip -d Email_to_pdf
+
+      - name: Commit updated iFlow
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add Email_to_pdf
+          git commit -m "Auto-sync: Exported latest iFlow from CPI" || echo "No changes"
+          git push
