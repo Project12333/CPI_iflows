@@ -1,9 +1,9 @@
 name: Export iFlow from CPI to GitHub
 
 on:
-  workflow_dispatch:     # run manually OR
+  workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"   # runs daily at midnight (optional)
+    - cron: "0 0 * * *"
 
 jobs:
   export-iflow:
@@ -19,6 +19,19 @@ jobs:
           "${{ secrets.CPI_URL }}/api/v1/IntegrationArtifacts(ArtifactId='Email_to_pdf',Version='1.0.0')/\$value" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -o Email_to_pdf_new.zip
+
+      # -------------------------------------------------------
+      # DEBUG STEP GOES HERE (between Download and Unzip)
+      # -------------------------------------------------------
+      - name: Debug downloaded file
+        run: |
+          echo "----- FILE SIZE -----"
+          ls -lh Email_to_pdf_new.zip
+          echo "----- FILE TYPE -----"
+          file Email_to_pdf_new.zip
+          echo "----- FIRST 200 bytes -----"
+          head -c 200 Email_to_pdf_new.zip | cat
+      # -------------------------------------------------------
 
       - name: Unzip exported iFlow
         run: |
