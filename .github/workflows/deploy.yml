@@ -7,7 +7,7 @@
       - name: Upload iFlow Package to SAP CPI
         run: |
           curl -X POST \
-          "${{ secrets.CPI_URL }}/api/v1/IntegrationArtifacts(ArtifactId='Email_to_pdf',Version='1.0.0')/\$value" \
+          "${{ secrets.CPI_URL }}/api/v1/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/$value
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -H "Content-Type: application/zip" \
           --data-binary @Email_to_pdf.zip
