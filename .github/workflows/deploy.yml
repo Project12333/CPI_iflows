@@ -22,7 +22,7 @@ jobs:
       - name: Upload iFlow (Design Time)
         run: |
           curl -X PUT \
-          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
+          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/Content" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -H "Content-Type: application/zip" \
           --data-binary @Email_to_pdf.zip
