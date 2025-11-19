@@ -1,4 +1,4 @@
-name: Export iFlow from CPI to GitHub
+name: Export Email_to_pdf iFlow from SAP CPI to GitHub
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  export-iflow:
+  export_iflow:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,11 +16,11 @@ jobs:
       - name: Download iFlow ZIP from CPI
         run: |
           curl -X GET \
-          "${{ secrets.CPI_URL }}/api/v1/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
+          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -o Email_to_pdf_new.zip
 
-      - name: Debug downloaded file
+      - name: Debug file
         run: |
           echo "----- FILE SIZE -----"
           ls -lh Email_to_pdf_new.zip
@@ -29,7 +29,7 @@ jobs:
           echo "----- FIRST 200 bytes -----"
           head -c 200 Email_to_pdf_new.zip | cat
 
-      - name: Unzip exported iFlow
+      - name: Replace iFlow folder
         run: |
           rm -rf Email_to_pdf
           unzip Email_to_pdf_new.zip -d Email_to_pdf

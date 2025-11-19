@@ -1,13 +1,28 @@
-      - name: Zip iFlow Folder
+name: Deploy Email_to_pdf iFlow to SAP CPI
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy_to_cpi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Zip iFlow folder
         run: |
           cd Email_to_pdf
           zip -r ../Email_to_pdf.zip .
           cd ..
 
-      - name: Upload iFlow Package to SAP CPI
+      - name: Upload iFlow (Design Time)
         run: |
-          curl -X POST \
-          "${{ secrets.CPI_URL }}/api/v1/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/$value
+          curl -X PUT \
+          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
           -H "Content-Type: application/zip" \
           --data-binary @Email_to_pdf.zip
@@ -15,5 +30,5 @@
       - name: Deploy iFlow to Runtime
         run: |
           curl -X POST \
-          "${{ secrets.CPI_URL }}/api/v1/DeployIntegrationArtifact?artifactId=Email_to_pdf&version=1.0.0" \
+          "${{ secrets.CPI_URL }}/api/1.0/DeployIntegrationArtifact?artifactId=Email_to_pdf&version=1.0.0" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}"
