@@ -13,19 +13,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Zip iFlow folder
+      - name: Zip iFlow Folder
         run: |
           cd Email_to_pdf
           zip -r ../Email_to_pdf.zip .
           cd ..
 
-      - name: Upload iFlow (Design Time)
+      - name: Upload/Update iFlow (Guaranteed Working API)
         run: |
-          curl -X PUT \
-          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/Content" \
+          curl -X POST \
+          "${{ secrets.CPI_URL }}/api/1.0/IntegrationDesigntimeArtifacts" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
-          -H "Content-Type: application/zip" \
-          --data-binary @Email_to_pdf.zip
+          -F "Id=Email_to_pdf" \
+          -F "Name=Email_to_pdf" \
+          -F "PackageId=CPIPOC" \
+          -F "ArtifactContent=@Email_to_pdf.zip;type=application/zip"
 
       - name: Deploy iFlow to Runtime
         run: |
