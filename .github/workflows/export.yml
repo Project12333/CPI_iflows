@@ -2,8 +2,6 @@ name: Export Email_to_pdf iFlow from SAP CPI to GitHub
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
 
 jobs:
   export_iflow:
@@ -13,23 +11,32 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Download iFlow ZIP from CPI
+      - name: Fetch CSRF token and login session
         run: |
-          curl -X GET \
-          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
+          curl -v -X GET \
+          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages" \
           -u "${{ secrets.CPI_USER }}:${{ secrets.CPI_PASS }}" \
+          -H "X-CSRF-Token: Fetch" \
+          -c cookies.txt \
+          -o /dev/null
+
+      - name: Download iFlow ZIP using authenticated session
+        run: |
+          curl -v -X GET \
+          "${{ secrets.CPI_URL }}/api/1.0/IntegrationPackages('CPIPOC')/IntegrationDesigntimeArtifacts('Email_to_pdf')/\$value" \
+          -b cookies.txt \
           -o Email_to_pdf_new.zip
 
-      - name: Debug file
+      - name: Debug ZIP file
         run: |
           echo "----- FILE SIZE -----"
           ls -lh Email_to_pdf_new.zip
           echo "----- FILE TYPE -----"
           file Email_to_pdf_new.zip
           echo "----- FIRST 200 bytes -----"
-          head -c 200 Email_to_pdf_new.zip | cat
+          head -c 200 Email_to_pdf_new.zip | xxd
 
-      - name: Replace iFlow folder
+      - name: Extract and update repo
         run: |
           rm -rf Email_to_pdf
           unzip Email_to_pdf_new.zip -d Email_to_pdf
@@ -39,5 +46,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add Email_to_pdf
-          git commit -m "Auto-sync: Exported latest iFlow from CPI" || echo "No changes"
+          git commit -m "Auto-sync: Exported latest iFlow" || echo "No changes"
           git push
